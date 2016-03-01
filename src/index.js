@@ -3,7 +3,15 @@ import promisescript from 'promisescript';
 export default class Reacti13nTealium {
 
   constructor(config) {
-    this.config = config;
+    this.config = {
+      account: 'dev',
+      externalScript: {
+        folder: '//tags.tiqcdn.com/utag/teg/unicorn',
+        fileName: 'utag.js',
+      },
+      ...config
+    }
+    this.config.externalScript = `${ this.config.externalScript.folder }/${ this.config.account }/${ this.config.externalScript.fileName }`;
   }
 
   get eventHandlers() {
@@ -17,12 +25,14 @@ export default class Reacti13nTealium {
       const pTealium = typeof this.config.loadExternalScript === 'function' ?
         this.config.loadExternalScript() :
         promisescript({
-          url: '//tags.tiqcdn.com/utag/teg/unicorn/dev/utag.js',
+          url: this.config.externalScript,
           type: 'script',
+          exposed: 'utag',
         });
-      this.script = pTealium.then(() => !(typeof window === 'undefined'))
+      this.script = pTealium.then(() => window.utag)
       .catch((event) => {
         console.error('An error loading or executing Tealium has occured: ', event.message);
+        throw event;
       });
     }
     return this.script;
@@ -41,15 +51,18 @@ export default class Reacti13nTealium {
   }
 
   /* eslint-disable no-unused-vars */
-  pageview(payload, pageViewCallback) {
+  pageview(payload) {
     return this.ensureScriptHasLoaded().then(() => (
-      this.updateUtagData(this.generatePayload(payload, 'pageview'), pageViewCallback)
+      this.updateUtagData(this.generatePayload(payload, 'pageview'))
     ));
   }
 
-  updateUtagData(additionalTrackingProps, updateUtagCallback) {
-    window.utag.view(utag_data);
-    return Promise.resolve().then(updateUtagCallback);
+  updateUtagData(additionalTrackingProps) {
+    /* eslint-disable camelcase */
+    // Set initial value for utag_data.
+    window.utag_data = additionalTrackingProps;
+    window.utag.view(additionalTrackingProps);
+    return Promise.resolve();
   }
 
 }
