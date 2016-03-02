@@ -73,7 +73,7 @@ export default class ReactInstrumentationTealium {
     /* eslint-disable id-match, camelcase */
     window.utag_data = additionalTrackingProps;
     window.utag.view(additionalTrackingProps);
-    return Promise.resolve();
+    return window.utag_data;
   }
 
 }
