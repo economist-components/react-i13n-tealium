@@ -13,7 +13,7 @@ function configureBuildValue() {
 }
 module.exports = function configureKarma(config) {
   const localBrowsers = [
-    'Chrome',
+    'PhantomJS',
   ];
   const sauceLabsBrowsers = {
     SauceChromeLatest: {
@@ -45,9 +45,8 @@ module.exports = function configureKarma(config) {
     basePath: '',
     browsers: localBrowsers,
     logLevel: config.LOG_INFO,
-    frameworks: [ 'mocha', 'chai' ],
+    frameworks: [ 'mocha' ],
     files: [
-      require.resolve('chai-spies/chai-spies'),
       path.join(packageJson.directories.site, 'bundle.js'),
     ],
     exclude: [],
