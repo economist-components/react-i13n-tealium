@@ -1,3 +1,4 @@
+/* global window: false */
 import promisescript from 'promisescript';
 export default class ReactInstrumentationTealium {
 
@@ -38,11 +39,11 @@ export default class ReactInstrumentationTealium {
           type: 'script',
           exposed: 'utag',
         });
-      /* eslint-disable no-undef */
       this.script = pTealium.then(() => window.utag)
       .catch((event) => {
         /* eslint-disable no-console */
         console.error('An error loading or executing Tealium has occured: ', event.message);
+        /* eslint-enable no-console */
         throw event;
       });
     }
@@ -67,6 +68,7 @@ export default class ReactInstrumentationTealium {
       this.updateUtagData(this.generatePayload(payload, 'pageview'))
     ));
   }
+  /* eslint-enable no-unused-vars */
 
   updateUtagData(additionalTrackingProps) {
     // Set initial value for utag_data.
@@ -74,6 +76,7 @@ export default class ReactInstrumentationTealium {
     window.utag_data = additionalTrackingProps;
     window.utag.view(additionalTrackingProps);
     return window.utag_data;
+    /* eslint-enable id-match, camelcase */
   }
 
 }
