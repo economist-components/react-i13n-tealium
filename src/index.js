@@ -20,6 +20,10 @@ export default class Reacti13nTealium {
       }`;
   }
 
+  get name() {
+    return 'react-i13n-tealium';
+  }
+
   get eventHandlers() {
     return {
       pageview: this.pageview.bind(this),
