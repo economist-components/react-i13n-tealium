@@ -9,9 +9,15 @@ export default class Reacti13nTealium {
         folder: '//tags.tiqcdn.com/utag/teg/unicorn',
         fileName: 'utag.js',
       },
-      ...config
-    }
-    this.config.externalScript = `${ this.config.externalScript.folder }/${ this.config.account }/${ this.config.externalScript.fileName }`;
+      ...config,
+    };
+    this.config.externalScript = `${
+        this.config.externalScript.folder
+      }/${
+        this.config.account
+      }/${
+        this.config.externalScript.fileName
+      }`;
   }
 
   get eventHandlers() {

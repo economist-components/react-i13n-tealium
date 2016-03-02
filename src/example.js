@@ -11,4 +11,4 @@ const TrackedApp = setupI13n(DemoApp, {
   },
   isViewportEnabled: true,
 }, [ new Reacti13nTealium(TealiumConfig) ]);
-export default(<TrackedApp/>);
+export default(<TrackedApp />);
