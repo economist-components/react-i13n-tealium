@@ -16,7 +16,7 @@ class DemoApp extends React.Component {
   render() {
     return (
       <p>
-        This plugin does not provide any visual output
+        This plugin does not provide any visual output.
       </p>
     );
   }
