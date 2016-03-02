@@ -1,14 +1,31 @@
-/* eslint-disable id-match, id-length */
-import DemoApp from './demoapp';
 import React from 'react';
-import Reacti13nTealium from './index.js';
+import ReactInstrumentationTealium from './index.js';
 import TealiumConfig from './example-config.js';
+/* eslint-disable id-match */
 import { setupI13n } from 'react-i13n';
+// Simulation of a basic App.
+class DemoApp extends React.Component {
+
+  static get propTypes() {
+    return {
+      /* eslint-disable id-match */
+      i13n: React.PropTypes.object,
+    };
+  }
+
+  render() {
+    return (
+      <p>
+        This plugin does not provide any visual output
+      </p>
+    );
+  }
+}
 
 const TrackedApp = setupI13n(DemoApp, {
   rootModelData: {
     product: 'The World If',
   },
   isViewportEnabled: true,
-}, [ new Reacti13nTealium(TealiumConfig) ]);
+}, [ new ReactInstrumentationTealium(TealiumConfig) ]);
 export default(<TrackedApp />);
