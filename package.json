@@ -1,9 +1,9 @@
 {
-  "name": "@economist/react-i-13-n-tealium",
+  "name": "@economist/react-i13n-tealium",
   "description": "A i13n plugin for Tealium",
-  "homepage": "https://github.com/economist-components/react-i-13-n-tealium",
+  "homepage": "https://github.com/economist-components/react-i13n-tealium",
   "bugs": {
-    "url": "https://github.com/economist-components/react-i-13-n-tealium/issues"
+    "url": "https://github.com/economist-components/react-i13n-tealium/issues"
   },
   "license": "MIT",
   "files": [
