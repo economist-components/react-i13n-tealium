@@ -11,9 +11,7 @@
     "assets/*"
   ],
   "main": "lib/index.js",
-  "style": "lib/index.css",
   "example": "lib/example.js",
-  "examplestyle": "lib/example.css",
   "directories": {
     "lib": "lib",
     "site": "site",
@@ -32,18 +30,14 @@
     "access:sudo": "npm access grant read-write economist:read-write-all $npm_package_name",
     "access:yld": "npm access grant read-only economist:yld $npm_package_name",
     "build": "npm-run-all --parallel build:*",
-    "prebuild:css": "mkdir -p $npm_package_directories_lib",
-    "build:css": "cp $npm_package_directories_src/*.css $npm_package_directories_lib",
     "build:js": "babel $npm_package_directories_src -d $npm_package_directories_lib",
     "ci": "sh ./build.sh",
     "predoc": "mkdir -p $npm_package_directories_site",
     "doc": "npm-run-all --parallel doc:*",
     "doc:assets": "npm-assets $npm_package_directories_site",
-    "doc:css": "postcss $npm_package_config_doc_css_options -o $npm_package_directories_site/bundle.css $npm_package_directories_src/example.css",
     "doc:html": "hbs -D package.json -H @economist/doc-pack -o $npm_package_directories_site $npm_package_config_doc_html_files",
     "doc:js": "browserify $npm_package_config_doc_js_options $npm_package_directories_test/*.js -o $npm_package_directories_site/bundle.js",
     "lint": "npm-run-all --parallel lint:*",
-    "lint:css": "stylelint $npm_package_directories_src/*.css",
     "lint:js": "eslint --ignore-path .gitignore .",
     "prepages": "npm run doc",
     "pages": "git-directory-deploy --directory $npm_package_directories_site --branch gh-pages",
@@ -58,7 +52,6 @@
     "prewatch:doc": "npm run predoc",
     "watch:doc": "npm-run-all --parallel watch:doc:*",
     "watch:doc:assets": "npm run doc:assets",
-    "watch:doc:css": "npm run doc:css -- --watch",
     "watch:doc:html": "npm run doc:html -- --watch",
     "watch:doc:js": "watchify $npm_package_config_doc_js_options $npm_package_directories_test/*.js -o $npm_package_directories_site/bundle.js",
     "prewatch:serve": "while [ ! -f site/index.html ]; do sleep 1; done",
@@ -71,9 +64,6 @@
       },
       "html": {
         "files": "@economist/doc-pack/templates/index.hbs @economist/doc-pack/templates/standalone.hbs"
-      },
-      "css": {
-        "options": "-u postcss-import -u postcss-url -u postcss-cssnext -u postcss-reporter"
       }
     },
     "ghooks": {
@@ -137,11 +127,6 @@
     "npm-assets": "^0.1.1",
     "npm-run-all": "^1.5.1",
     "phantomjs-prebuilt": "^2.1.4",
-    "postcss-cli": "^2.5.1",
-    "postcss-cssnext": "^2.4.0",
-    "postcss-import": "^8.0.2",
-    "postcss-reporter": "^1.3.3",
-    "postcss-url": "^5.1.1",
     "react-addons-test-utils": "^0.14.7",
     "react-dom": "^0.14.7",
     "semantic-release": "^4.3.5",
