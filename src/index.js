@@ -1,6 +1,5 @@
 import promisescript from 'promisescript';
-/* eslint-disable id-match, no-undef, no-console */
-export default class Reacti13nTealium {
+export default class ReactInstrumentationTealium {
 
   constructor(config) {
     this.config = {
@@ -39,8 +38,10 @@ export default class Reacti13nTealium {
           type: 'script',
           exposed: 'utag',
         });
+      /* eslint-disable no-undef */
       this.script = pTealium.then(() => window.utag)
       .catch((event) => {
+        /* eslint-disable no-console */
         console.error('An error loading or executing Tealium has occured: ', event.message);
         throw event;
       });
@@ -68,8 +69,8 @@ export default class Reacti13nTealium {
   }
 
   updateUtagData(additionalTrackingProps) {
-    /* eslint-disable camelcase */
     // Set initial value for utag_data.
+    /* eslint-disable id-match, camelcase */
     window.utag_data = additionalTrackingProps;
     window.utag.view(additionalTrackingProps);
     return Promise.resolve();
