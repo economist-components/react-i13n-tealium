@@ -1,0 +1,141 @@
+{
+  "name": "@economist/react-i13n-tealium",
+  "description": "A i13n plugin for Tealium",
+  "homepage": "https://github.com/economist-components/react-i13n-tealium",
+  "bugs": {
+    "url": "https://github.com/economist-components/react-i13n-tealium/issues"
+  },
+  "license": "MIT",
+  "files": [
+    "lib/*",
+    "assets/*"
+  ],
+  "main": "lib/index.js",
+  "example": "lib/example.js",
+  "directories": {
+    "lib": "lib",
+    "site": "site",
+    "src": "src",
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/economist-components/react-i13n-tealium"
+  },
+  "scripts": {
+    "access": "npm-run-all --parallel access:*",
+    "access:editorial": "npm access grant read-only economist:economist-editorial $npm_package_name",
+    "access:global-logic": "npm access grant read-only economist:global-logic $npm_package_name",
+    "access:infographics": "npm access grant read-only economist:infographics $npm_package_name",
+    "access:sudo": "npm access grant read-write economist:read-write-all $npm_package_name",
+    "access:yld": "npm access grant read-only economist:yld $npm_package_name",
+    "build": "npm-run-all --parallel build:*",
+    "build:js": "babel $npm_package_directories_src -d $npm_package_directories_lib",
+    "ci": "sh ./build.sh",
+    "predoc": "mkdir -p $npm_package_directories_site",
+    "doc": "npm-run-all --parallel doc:*",
+    "doc:assets": "npm-assets $npm_package_directories_site",
+    "doc:html": "hbs -D package.json -H @economist/doc-pack -o $npm_package_directories_site $npm_package_config_doc_html_files",
+    "doc:js": "browserify $npm_package_config_doc_js_options $npm_package_directories_test/*.js -o $npm_package_directories_site/bundle.js",
+    "lint": "npm-run-all --parallel lint:*",
+    "lint:js": "eslint --ignore-path .gitignore .",
+    "prepages": "npm run doc",
+    "pages": "git-directory-deploy --directory $npm_package_directories_site --branch gh-pages",
+    "provision": "provision-react-component",
+    "prepublish": "npm run build",
+    "postpublish": "npm run access",
+    "semantic-release": "semantic-release pre || exit 0; npm publish && semantic-release post",
+    "start": "npm run watch",
+    "pretest": "npm run lint && npm run doc",
+    "test": "karma start",
+    "watch": "npm-run-all --parallel watch:*",
+    "prewatch:doc": "npm run predoc",
+    "watch:doc": "npm-run-all --parallel watch:doc:*",
+    "watch:doc:assets": "npm run doc:assets",
+    "watch:doc:html": "npm run doc:html -- --watch",
+    "watch:doc:js": "watchify $npm_package_config_doc_js_options $npm_package_directories_test/*.js -o $npm_package_directories_site/bundle.js",
+    "prewatch:serve": "while [ ! -f site/index.html ]; do sleep 1; done",
+    "watch:serve": "live-server site/ --wait 500"
+  },
+  "config": {
+    "doc": {
+      "js": {
+        "options": "-r react -r react-dom -r ./src/example.js:example"
+      },
+      "html": {
+        "files": "@economist/doc-pack/templates/index.hbs @economist/doc-pack/templates/standalone.hbs"
+      }
+    },
+    "ghooks": {
+      "pre-commit": "npm run lint",
+      "commit-msg": "validate-commit-msg"
+    }
+  },
+  "browserify": {
+    "transform": [
+      "babelify"
+    ]
+  },
+  "babel": {
+    "compact": false,
+    "ignore": "node_modules",
+    "sourceMaps": "inline",
+    "stage": 0
+  },
+  "eslintConfig": {
+    "parser": "babel-eslint",
+    "extends": [
+      "strict",
+      "strict-react"
+    ]
+  },
+  "stylelint": {
+    "extends": [
+      "stylelint-config-strict"
+    ]
+  },
+  "dependencies": {
+    "babel-runtime": "^6.3.19",
+    "promisescript": "^1.1.0",
+    "react": "^0.14.7"
+  },
+  "devDependencies": {
+    "@economist/doc-pack": "^1.0.6",
+    "@economist/provision-react-component": "1.4.3",
+    "babel": "^5.8.34",
+    "babel-eslint": "^5.0.0",
+    "babel-polyfill": "^6.6.1",
+    "babelify": "^6.4.0",
+    "browserify": "^13.0.0",
+    "chai": "^3.5.0",
+    "chai-spies": "^0.7.1",
+    "eslint": "^2.1.0",
+    "eslint-config-strict": "^8.5.0",
+    "eslint-config-strict-react": "^7.0.1",
+    "eslint-plugin-filenames": "^0.2.0",
+    "eslint-plugin-react": "^4.1.0",
+    "ghooks": "^1.0.1",
+    "git-directory-deploy": "^1.4.0",
+    "hbs-cli": "^1.0.0",
+    "karma": "^0.13.21",
+    "karma-mocha": "^0.2.2",
+    "karma-mocha-reporter": "^1.2.2",
+    "karma-phantomjs-launcher": "^1.0.0",
+    "karma-sauce-launcher": "^0.3.0",
+    "live-server": "^0.9.2",
+    "mocha": "^2.4.5",
+    "npm-assets": "^0.1.1",
+    "npm-run-all": "^1.5.1",
+    "phantomjs-prebuilt": "^2.1.4",
+    "react-addons-test-utils": "^0.14.7",
+    "react-dom": "^0.14.7",
+    "semantic-release": "^4.3.5",
+    "stylelint": "^4.3.5",
+    "stylelint-config-strict": "^2.1.0",
+    "validate-commit-msg": "^2.0.0",
+    "watchify": "^3.7.0"
+  },
+  "peerDependencies": {
+    "react-i13n": "^2.0.2"
+  }
+}
