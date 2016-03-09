@@ -13,6 +13,10 @@ class DemoApp extends React.Component {
     };
   }
 
+  shouldComponentUpdate() {
+    return false;
+  }
+
   render() {
     return (
       <p>
