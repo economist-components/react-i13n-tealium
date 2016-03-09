@@ -80,7 +80,7 @@
     "compact": false,
     "ignore": "node_modules",
     "sourceMaps": "inline",
-    "stage": 2
+    "stage": 0
   },
   "eslintConfig": {
     "extends": [
