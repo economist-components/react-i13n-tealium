@@ -10436,7 +10436,7 @@ var I13nMixin = {
             return this.shouldFollowLink();
         }
 
-        return (undefined !== props.followLink) ? props.followLink : props.follow;
+        return (undefined !== this.props.followLink) ? this.props.followLink : this.props.follow;
     },
 
     /**
@@ -11980,12 +11980,21 @@ var scroll = {
     delta: 0,
     top: 0
 };
+var touch = {
+    axisIntention: '',
+    startX: 0,
+    startY: 0,
+    deltaX: 0,
+    deltaY: 0
+};
 
 // global variables
 var doc;
 var docBody;
 var docEl;
 var win;
+
+var INTENTION_THRESHOLD = 5;
 
 if (typeof window !== 'undefined') {
     win = window;
@@ -12001,17 +12010,38 @@ if (typeof window !== 'undefined') {
  */
 function ArgmentedEvent(option) {
     option = option || {};
-    this.type = option.type || '';
+    var mainType = (option.mainType || '').toLowerCase();
+    var subType = (option.subType || '').toLowerCase();
+
+    this.mainType = mainType;
+    this.subType = subType;
+    this.type = mainType + subType.charAt(0).toUpperCase() + subType.slice(1) || '';
     this.scroll = scroll;
     this.resize = resize;
+    this.touch = touch;
 }
 
 ArgmentedEvent.prototype = {
-    update: function update(mainType) {
-        var top;
+    getXY: function getXY(touch) {
+        var t = { x: 0, y: 0 };
+
+        if (touch.pageX || touch.pageY) {
+            t.x = touch.pageX;
+            t.y = touch.pageY;
+        } else {
+            t.x = touch.clientX + docBody.scrollLeft + docEl.scrollLeft;
+            t.y = touch.clientY + docBody.scrollTop + docEl.scrollTop;
+        }
+
+        return t;
+    },
+
+    update: function update(e) {
+        var mainType = this.mainType;
+        var subType = this.subType;
 
         if (globalVars.enableScrollInfo && (mainType === 'scroll' || mainType === 'touchmove')) {
-            top = docEl.scrollTop + docBody.scrollTop;
+            var top = docEl.scrollTop + docBody.scrollTop;
             // Prevent delta from being 0
             if (top !== this.scroll.top) {
                 this.scroll.delta = top - this.scroll.top;
@@ -12021,6 +12051,32 @@ ArgmentedEvent.prototype = {
         if (globalVars.enableResizeInfo && mainType === 'resize') {
             this.resize.width = win.innerWidth || docEl.clientWidth;
             this.resize.height = win.innerHeight || docEl.clientHeight;
+        }
+        if (globalVars.enableTouchInfo && e.touches && (mainType === 'touchstart' || mainType === 'touchmove' || mainType === 'touchend')) {
+            var pos;
+            var absX;
+            var absY;
+            if (mainType === 'touchstart' || subType === 'start') {
+                pos = this.getXY(e.touches[0]);
+                this.touch.axisIntention = '';
+                this.touch.startX = pos.x;
+                this.touch.startY = pos.y;
+                this.touch.deltaX = 0;
+                this.touch.deltaY = 0;
+            } else if (mainType === 'touchmove') {
+                pos = this.getXY(e.touches[0]);
+                this.touch.deltaX = pos.x - this.touch.startX;
+                this.touch.deltaY = pos.y - this.touch.startY;
+                if (this.touch.axisIntention === '') {
+                    absX = Math.abs(this.touch.deltaX);
+                    absY = Math.abs(this.touch.deltaY);
+                    if (absX > INTENTION_THRESHOLD && absX >= absY) {
+                        this.touch.axisIntention = 'x';
+                    } else if (absY > INTENTION_THRESHOLD && absY > absX) {
+                        this.touch.axisIntention = 'y';
+                    }
+                }
+            }
         }
     }
 };
@@ -12182,10 +12238,17 @@ var EVENT_END_DELAY = require('./constants').EVENT_END_DELAY;
 // global variables
 var doc;
 var win;
+var body;
+var hashId = 0;
 
 if (typeof window !== 'undefined') {
     win = window;
     doc = win.document || document;
+    body = doc.body;
+}
+
+function getHash(domNode) {
+    return domNode.id || 'target-id-' + hashId++;
 }
 
 /**
@@ -12243,11 +12306,15 @@ function connectThrottle(throttledEvent, cb, ctx, throttledMainEvent) {
  * @param {String} event - A subscribe event.
  */
 function connectContinuousEvent(target, mainEvent, event) {
-    return function throttleEvent(throttleRate, cb, context) {
+    return function throttleEvent(throttleRate, cb, options) {
+        var context = options.context;
+        var domTarget = options.target;
+        var domId = domTarget && getHash(domTarget);
+
         var throttledStartEvent = mainEvent + 'Start:' + throttleRate;
         var throttledEndEvent = mainEvent + 'End:' + throttleRate;
-        var throttledMainEvent = mainEvent + ':' + throttleRate;
-        var throttledEvent = event + ':' + throttleRate;
+        var throttledMainEvent = mainEvent + ':' + throttleRate + (domId ? ':' + domId : '');
+        var throttledEvent = event + ':' + throttleRate + (domId ? ':' + domId : '');
 
         var remover = connectThrottle(throttledEvent, cb, context, throttledMainEvent);
         removers.push(remover);
@@ -12257,9 +12324,9 @@ function connectContinuousEvent(target, mainEvent, event) {
         }
 
         var ae = {
-            start: new AugmentedEvent({ type: mainEvent + 'Start' }), // start
-            main: new AugmentedEvent({ type: mainEvent }), // main
-            end: new AugmentedEvent({ type: mainEvent + 'End' }) };
+            start: new AugmentedEvent({ mainType: mainEvent, subType: 'start' }), // start
+            main: new AugmentedEvent({ mainType: mainEvent }), // main
+            end: new AugmentedEvent({ mainType: mainEvent, subType: 'end' }) };
 
         // No throttle for throttleRate = 0
         // end
@@ -12272,18 +12339,18 @@ function connectContinuousEvent(target, mainEvent, event) {
 
         var timer;
         function endCallback(e) {
-            ae.end.update(mainEvent);
+            ae.end.update(e);
             EE.emit(throttledEndEvent, e, ae.end);
             timer = null;
         }
         function handler(e) {
-            ae.start.update(mainEvent);
             if (!timer) {
+                ae.start.update(e);
                 EE.emit(throttledStartEvent, e, ae.start);
             }
             clearTimeout(timer);
 
-            // No need to call ae.main.update(), because ae.start.update is called, everything is update-to-date.
+            ae.main.update(e);
             EE.emit(throttledMainEvent, e, ae.main);
             if (!leIE8) {
                 timer = setTimeout(endCallback.bind(null, e), throttleRate + EVENT_END_DELAY);
@@ -12296,15 +12363,19 @@ function connectContinuousEvent(target, mainEvent, event) {
             }
         }
 
-        listeners[throttledMainEvent] = listen(target, mainEvent, handler);
+        listeners[throttledMainEvent] = listen(domTarget || target, mainEvent, handler);
         return remover;
     };
 }
 
 function connectDiscreteEvent(target, event) {
-    return function throttleEvent(throttleRate, cb, context) {
+    return function throttleEvent(throttleRate, cb, options) {
+        var context = options.context;
+        var domTarget = options.target;
+        var domId = domTarget && getHash(domTarget);
+
         // no throttling for discrete event
-        var throttledEvent = event + ':0';
+        var throttledEvent = event + ':0' + (domId ? ':' + domId : '');
 
         var remover = connectThrottle(throttledEvent, cb, context);
         removers.push(remover);
@@ -12313,14 +12384,14 @@ function connectDiscreteEvent(target, event) {
             return remover;
         }
 
-        var ae = new AugmentedEvent({ type: event });
+        var ae = new AugmentedEvent({ mainType: event });
 
         function handler(e) {
-            ae.update(event);
+            ae.update(e);
             EE.emit(throttledEvent, e, ae);
         }
 
-        listeners[throttledEvent] = listen(target, event, handler);
+        listeners[throttledEvent] = listen(domTarget || target, event, handler);
         return remover;
     };
 }
@@ -12333,11 +12404,11 @@ module.exports = {
     resizeEnd: connectContinuousEvent(win, 'resize', 'resizeEnd'),
     resize: connectContinuousEvent(win, 'resize', 'resize'),
     visibilitychange: connectDiscreteEvent(doc, 'visibilitychange'),
-    touchmoveStart: connectContinuousEvent(win, 'touchmove', 'touchmoveStart'),
-    touchmoveEnd: connectContinuousEvent(win, 'touchmove', 'touchmoveEnd'),
-    touchmove: connectContinuousEvent(win, 'touchmove', 'touchmove'),
-    touchstart: connectDiscreteEvent(doc, 'touchstart'),
-    touchend: connectDiscreteEvent(doc, 'touchend')
+    touchmoveStart: connectContinuousEvent(body, 'touchmove', 'touchmoveStart'),
+    touchmoveEnd: connectContinuousEvent(body, 'touchmove', 'touchmoveEnd'),
+    touchmove: connectContinuousEvent(body, 'touchmove', 'touchmove'),
+    touchstart: connectDiscreteEvent(body, 'touchstart'),
+    touchend: connectDiscreteEvent(body, 'touchend')
 };
 
 },{"./AugmentedEvent":66,"./constants":67,"./globalVars":68,"./lib/leIE8":69,"./lib/listen":70,"./lib/rAFThrottle":71,"lodash/function/throttle":78,"lodash/lang/clone":102}],73:[function(require,module,exports){
@@ -12387,8 +12458,9 @@ function subscribe(type, cb, options) {
     // once those variables enabled, then never disabled.
     globalVars.enableScrollInfo = globalVars.enableScrollInfo || options.enableScrollInfo || false;
     globalVars.enableResizeInfo = globalVars.enableResizeInfo || options.enableResizeInfo || false;
+    globalVars.enableTouchInfo = globalVars.enableTouchInfo || options.enableTouchInfo || false;
 
-    return mainEventConnectors[type](throttleRate, cb, options.context);
+    return mainEventConnectors[type](throttleRate, cb, options);
 }
 
 module.exports = subscribe;
