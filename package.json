@@ -120,7 +120,7 @@
     "mocha": "^2.4.5",
     "npm-assets": "^0.1.1",
     "npm-run-all": "^1.6.0",
-    "phantomjs-prebuilt": "^2.1.4",
+    "phantomjs-prebuilt": "^2.1.7",
     "react-addons-test-utils": "^0.14.7",
     "react-dom": "^0.14.7",
     "semantic-release": "^4.3.5",
