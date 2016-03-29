@@ -287,17 +287,12 @@ Buffer.compare = function compare (a, b) {
   var x = a.length
   var y = b.length
 
-  var i = 0
-  var len = Math.min(x, y)
-  while (i < len) {
-    if (a[i] !== b[i]) break
-
-    ++i
-  }
-
-  if (i !== len) {
-    x = a[i]
-    y = b[i]
+  for (var i = 0, len = Math.min(x, y); i < len; ++i) {
+    if (a[i] !== b[i]) {
+      x = a[i]
+      y = b[i]
+      break
+    }
   }
 
   if (x < y) return -1
@@ -458,7 +453,6 @@ Buffer.prototype.inspect = function inspect () {
 
 Buffer.prototype.compare = function compare (b) {
   if (!Buffer.isBuffer(b)) throw new TypeError('Argument must be a Buffer')
-  if (this === b) return 0
   return Buffer.compare(this, b)
 }
 
@@ -1475,17 +1469,12 @@ var revLookup = []
 var Arr = typeof Uint8Array !== 'undefined' ? Uint8Array : Array
 
 function init () {
-  var i
   var code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-  var len = code.length
-
-  for (i = 0; i < len; i++) {
+  for (var i = 0, len = code.length; i < len; ++i) {
     lookup[i] = code[i]
-  }
-
-  for (i = 0; i < len; ++i) {
     revLookup[code.charCodeAt(i)] = i
   }
+
   revLookup['-'.charCodeAt(0)] = 62
   revLookup['_'.charCodeAt(0)] = 63
 }
@@ -1517,8 +1506,8 @@ function toByteArray (b64) {
 
   for (i = 0, j = 0; i < l; i += 4, j += 3) {
     tmp = (revLookup[b64.charCodeAt(i)] << 18) | (revLookup[b64.charCodeAt(i + 1)] << 12) | (revLookup[b64.charCodeAt(i + 2)] << 6) | revLookup[b64.charCodeAt(i + 3)]
-    arr[L++] = (tmp & 0xFF0000) >> 16
-    arr[L++] = (tmp & 0xFF00) >> 8
+    arr[L++] = (tmp >> 16) & 0xFF
+    arr[L++] = (tmp >> 8) & 0xFF
     arr[L++] = tmp & 0xFF
   }
 
@@ -12082,7 +12071,7 @@ module.exports = ArgmentedEvent;
 'use strict';
 
 module.exports = {
-  EVENT_END_DELAY: 200,
+  EVENT_END_DELAY: 100,
   DEFAULT_THROTTLE_RATE: 50
 };
 
@@ -12301,11 +12290,12 @@ function connectContinuousEvent(target, mainEvent, event) {
         var context = options.context;
         var domTarget = options.target;
         var domId = domTarget && getHash(domTarget);
+        var targetPart = domId ? ':' + domId : '';
 
-        var throttledStartEvent = mainEvent + 'Start:' + throttleRate;
-        var throttledEndEvent = mainEvent + 'End:' + throttleRate;
-        var throttledMainEvent = mainEvent + ':' + throttleRate + (domId ? ':' + domId : '');
-        var throttledEvent = event + ':' + throttleRate + (domId ? ':' + domId : '');
+        var throttledStartEvent = mainEvent + 'Start:' + throttleRate + targetPart;
+        var throttledEndEvent = mainEvent + 'End:' + throttleRate + targetPart;
+        var throttledMainEvent = mainEvent + ':' + throttleRate + targetPart;
+        var throttledEvent = event + ':' + throttleRate + targetPart;
 
         var remover = connectThrottle(throttledEvent, cb, context, throttledMainEvent);
         removers.push(remover);
@@ -23804,6 +23794,10 @@ var ReactEmptyComponentInjection = {
   }
 };
 
+function registerNullComponentID() {
+  ReactEmptyComponentRegistry.registerNullComponentID(this._rootNodeID);
+}
+
 var ReactEmptyComponent = function (instantiate) {
   this._currentElement = null;
   this._rootNodeID = null;
@@ -23812,7 +23806,7 @@ var ReactEmptyComponent = function (instantiate) {
 assign(ReactEmptyComponent.prototype, {
   construct: function (element) {},
   mountComponent: function (rootID, transaction, context) {
-    ReactEmptyComponentRegistry.registerNullComponentID(rootID);
+    transaction.getReactMountReady().enqueue(registerNullComponentID, this);
     this._rootNodeID = rootID;
     return ReactReconciler.mountComponent(this._renderedComponent, rootID, transaction, context);
   },
@@ -28092,7 +28086,7 @@ module.exports = ReactUpdates;
 
 'use strict';
 
-module.exports = '0.14.7';
+module.exports = '0.14.8';
 },{}],197:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
