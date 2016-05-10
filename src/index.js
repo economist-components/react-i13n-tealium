@@ -66,7 +66,11 @@ export default class ReactInstrumentationTealium {
   pageview(payload) {
     return this.ensureScriptHasLoaded().then(() => (
       this.updateUtagData(this.generatePayload(payload, 'pageview'))
-    ));
+    )).catch((pageViewError) => {
+      /* eslint-disable no-console */
+      console.error(pageViewError.stack);
+      /* eslint-enable no-console */
+    });
   }
   /* eslint-enable no-unused-vars */
 
