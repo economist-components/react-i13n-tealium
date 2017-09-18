@@ -27,6 +27,7 @@ export default class ReactInstrumentationTealium {
   get eventHandlers() {
     return {
       pageview: this.pageview.bind(this),
+      paywallvalidation: this.paywallvalidation.bind(this),
     };
   }
 
@@ -63,16 +64,30 @@ export default class ReactInstrumentationTealium {
   }
 
   /* eslint-disable no-unused-vars */
-  pageview(payload) {
-    return this.ensureScriptHasLoaded().then(() => (
-      this.updateUtagData(this.generatePayload(payload, 'pageview'))
-    )).catch((pageViewError) => {
+  customEvent(payload, customEventCallback, customEventName = 'pageview') {
+    return this.ensureScriptHasLoaded().then((resolve) => {
+      const newPayload = this.generatePayload(payload, customEventName);
+      if (newPayload) {
+        this.track(newPayload, customEventCallback);
+      } else {
+        resolve();
+      }
+    }).catch((customEventError) => {
       /* eslint-disable no-console */
-      console.error(pageViewError.stack);
+      console.error(customEventError.stack);
       /* eslint-enable no-console */
     });
   }
-  /* eslint-enable no-unused-vars */
+
+  pageview(payload) {
+    return this.customEvent(payload);
+  }
+
+  // Some pages could be behind a paywall, we want send the data after the
+  // validation of the paywall.
+  paywallvalidation(payload) {
+    return this.customEvent(payload, () => true, 'paywallvalidation');
+  }
 
   updateUtagData(additionalTrackingProps) {
     // Set initial value for utag_data.
