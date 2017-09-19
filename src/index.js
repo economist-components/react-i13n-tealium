@@ -66,12 +66,7 @@ export default class ReactInstrumentationTealium {
   /* eslint-disable no-unused-vars */
   customEvent(payload, customEventCallback, customEventName = 'pageview') {
     return this.ensureScriptHasLoaded().then((resolve) => {
-      const newPayload = this.generatePayload(payload, customEventName);
-      if (newPayload) {
-        this.track(newPayload, customEventCallback);
-      } else {
-        resolve();
-      }
+      this.updateUtagData(this.generatePayload(payload, customEventName));
     }).catch((customEventError) => {
       /* eslint-disable no-console */
       console.error(customEventError.stack);
@@ -83,8 +78,6 @@ export default class ReactInstrumentationTealium {
     return this.customEvent(payload);
   }
 
-  // Some pages could be behind a paywall, we want send the data after the
-  // validation of the paywall.
   paywallvalidation(payload) {
     return this.customEvent(payload, () => true, 'paywallvalidation');
   }
