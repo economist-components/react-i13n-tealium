@@ -36,6 +36,26 @@ describe('TealiumPlugin is a i13n plugin for Tealium', () => {
       });
     });
   });
+  describe('pageview', () => {
+    it('calls customEvent', () => {
+      const plugin = new ReactI13nTealium(TealiumConfig);
+      plugin.customEvent = chai.spy();
+      plugin.pageview({
+        example: 'test',
+      });
+      plugin.customEvent.should.have.been.called.exactly(1);
+    });
+  });
+  describe('paywallvalidation', () => {
+    it('calls customEvent', () => {
+      const plugin = new ReactI13nTealium(TealiumConfig);
+      plugin.customEvent = chai.spy();
+      plugin.paywallvalidation({
+        example: 'test',
+      });
+      plugin.customEvent.should.have.been.called.exactly(1);
+    });
+  });
   describe('tealium plugin', () => {
     it('it calls utag.view() method with utag_data', () => {
       const TrackedApp = new ReactI13nTealium(TealiumConfig);
