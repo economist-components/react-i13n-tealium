@@ -66,7 +66,10 @@ export default class ReactInstrumentationTealium {
   /* eslint-disable no-unused-vars */
   customEvent(payload, customEventCallback, customEventName = 'pageview') {
     return this.ensureScriptHasLoaded().then((resolve) => {
-      this.updateUtagData(this.generatePayload(payload, customEventName));
+      const newPayload = this.generatePayload(payload, customEventName);
+      if (newPayload) {
+        this.updateUtagData(newPayload);
+      }
     }).catch((customEventError) => {
       /* eslint-disable no-console */
       console.error(customEventError.stack);
