@@ -1,5 +1,6 @@
 {
   "name": "@economist/react-i13n-tealium",
+  "version": "1.2.0",
   "description": "A i13n plugin for Tealium",
   "homepage": "https://github.com/economist-components/react-i13n-tealium",
   "bugs": {
