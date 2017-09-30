@@ -92,7 +92,7 @@
   },
   "dependencies": {
     "promisescript": "^1.1.0",
-    "react": "^0.14.8"
+    "react": "^15.1.0"
   },
   "devDependencies": {
     "@economist/doc-pack": "^1.0.6",
