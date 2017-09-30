@@ -91,7 +91,7 @@
     "parser": "babel-eslint"
   },
   "dependencies": {
-    "promisescript": "^1.1.0",
+    "promisescript": "^1.2.0",
     "react": "^0.14.8"
   },
   "devDependencies": {
