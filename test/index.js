@@ -1,10 +1,17 @@
 /* eslint-disable id-match, no-undef, camelcase */
+import 'babel-polyfill';
 import ReactI13nTealium from '../src/index';
 import TealiumConfig from '../src/example-config.js';
+import Enzyme from 'enzyme';
+import Adapter from 'enzyme-adapter-react-16';
 import chai from 'chai';
+import chaiEnzyme from 'chai-enzyme';
 import spies from 'chai-spies';
+
+
+Enzyme.configure({ adapter: new Adapter() });
+chai.use(chaiEnzyme()).should();
 chai.use(spies);
-chai.should();
 mocha.setup({ globals: [ 'utag_condload', 'utag', 'i', 'utag_data' ] });
 describe('TealiumPlugin is a i13n plugin for Tealium', () => {
   describe('ensureScriptHasLoaded', () => {
