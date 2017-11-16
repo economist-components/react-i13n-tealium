@@ -91,8 +91,11 @@
     "parser": "babel-eslint"
   },
   "dependencies": {
-    "promisescript": "^1.1.0",
-    "react": "^0.14.8"
+    "promisescript": "^1.2.1",
+    "prop-types": "^15.6.0"
+  },
+  "peerDependencies": {
+    "react-i13n": "^2.7.1"
   },
   "devDependencies": {
     "@economist/doc-pack": "^1.0.6",
@@ -122,13 +125,11 @@
     "npm-assets": "^0.1.1",
     "npm-run-all": "^1.8.0",
     "phantomjs-prebuilt": "^2.1.7",
-    "react-addons-test-utils": "^0.14.7",
-    "react-dom": "^0.14.8",
+    "react": "^16.0.0",
+    "react-dom": "^16.0.0",
+    "react-i13n": "^2.7.1",
     "semantic-release": "^4.3.5",
     "validate-commit-msg": "^2.6.1",
     "watchify": "^3.7.0"
-  },
-  "peerDependencies": {
-    "react-i13n": "^2.0.12"
   }
 }
