@@ -24,7 +24,7 @@ describe('TealiumPlugin is a i13n plugin for Tealium', () => {
         example: 'test',
       };
       plugin.updateUtagData = chai.spy();
-      plugin.generatePayload = chai.spy();
+      plugin.generatePayload = chai.spy(() => true);
       plugin.customEvent(payload, () => true, 'paywallvalidation').then(() => {
         plugin.ensureScriptHasLoaded.should.have.been.called.exactly(1);
         plugin.updateUtagData.should.have.been.called.exactly(1);
